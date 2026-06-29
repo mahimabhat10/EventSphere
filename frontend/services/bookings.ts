@@ -7,4 +7,8 @@ export const BookingService = {
       body: JSON.stringify(data),
     });
   },
+
+  getBookings() {
+    return api("/bookings/");
+  },
 };

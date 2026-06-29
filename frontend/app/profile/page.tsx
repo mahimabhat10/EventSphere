@@ -1,8 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+
+import { BookingService } from "@/services/bookings";
+import { UserService } from "@/services/users";
 
 export default function ProfilePage() {
+
+ const [bookings, setBookings] = useState<any[]>([]);
+const [user, setUser] = useState<any>(null);
+
+useEffect(() => {
+  BookingService.getBookings().then((data) => {
+    console.log("BOOKINGS:", data);
+    setBookings(data);
+  });
+}, []);
+
   return (
     <main className="min-h-screen bg-[#050816] py-12 px-6">
 
@@ -30,15 +45,15 @@ export default function ProfilePage() {
               />
 
               <h2 className="mt-6 text-3xl font-black text-white">
-                John Doe
+               {user?.first_name} {user?.last_name}
               </h2>
 
               <p className="mt-2 text-white/60">
-                johndoe@gmail.com
+              {user?.email}
               </p>
 
               <span className="mt-5 rounded-full bg-cyan-500/20 px-5 py-2 text-cyan-400">
-                Premium Member
+                {user?.role}
               </span>
 
             </div>
@@ -132,7 +147,44 @@ export default function ProfilePage() {
         </div>
 
       </div>
+<div className="mx-auto mt-12 max-w-7xl">
 
+  <h2 className="mb-8 text-4xl font-black text-white">
+    My Bookings
+  </h2>
+
+  <div className="grid gap-6">
+
+    {bookings.map((booking: any) => (
+
+      <div
+        key={booking.id}
+        className="rounded-3xl bg-white/5 border border-white/10 p-6"
+      >
+
+        <h3 className="text-2xl font-bold text-white">
+          {booking.event_details.title}
+        </h3>
+
+        <p className="mt-2 text-white/60">
+          Tickets: {booking.quantity}
+        </p>
+
+        <p className="mt-2 text-cyan-400">
+          ₹{booking.total_price}
+        </p>
+
+        <p className="mt-2 text-green-400">
+          {booking.status}
+        </p>
+
+      </div>
+
+    ))}
+
+  </div>
+
+</div>
     </main>
   );
 }

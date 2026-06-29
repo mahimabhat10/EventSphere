@@ -1,18 +1,18 @@
 import { api } from "@/lib/api";
 
 export const EventService = {
-  getEvents() {
-    return api("/events/");
+  async getEvents() {
+    return await api("/events/");
   },
 
-  getEvent(id: number) {
-    return api(`/events/${id}/`);
+  getEvent(id: string | string[]) {
+  return api(`/events/${id}/`);
+},
+  async getFeaturedEvents() {
+    return await api("/events/featured/");
   },
 
-  createEvent(data: any) {
-    return api("/events/", {
-      method: "POST",
-      body: JSON.stringify(data),
-    });
+  async getUpcomingEvents() {
+    return await api("/events/upcoming/");
   },
 };

@@ -10,7 +10,7 @@ export default function useEvents() {
   useEffect(() => {
     EventService.getEvents()
       .then((data) => {
-        console.log(data);
+        console.log("API RESPONSE:", data);
 
         if (Array.isArray(data)) {
           setEvents(data);
@@ -20,10 +20,7 @@ export default function useEvents() {
           setEvents([]);
         }
       })
-      .catch((err) => {
-        console.error(err);
-        setEvents([]);
-      })
+      .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
