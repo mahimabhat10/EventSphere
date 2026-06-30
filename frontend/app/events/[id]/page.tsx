@@ -1,17 +1,48 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import { EventService } from "@/services/events";
-import Link from "next/link";
-export default function EventDetails() {
+import { BookingService } from "@/services/bookings";
+
+interface Event {
+  id: number;
+  title: string;
+  location: string;
+  date: string;
+  price: number;
+}
+
+export default function BookingPage() {
   const { id } = useParams();
 
-  const [event, setEvent] = useState<any>(null);
+  const [event, setEvent] = useState<Event | null>(null);
+  const [tickets, setTickets] = useState(1);
 
   useEffect(() => {
-    EventService.getEvent(id).then(setEvent);
+    if (!id) return;
+
+    EventService.getEvent(Number(id)).then(setEvent);
   }, [id]);
+
+  const handleBooking = async () => {
+    if (!event) return;
+
+    try {
+      await BookingService.createBooking({
+        event: event.id,
+        quantity: tickets,
+        total_price: tickets * Number(event.price),
+        user: 1, // replace later with logged-in user
+      });
+
+      alert("🎉 Booking Successful!");
+      window.location.href = "/profile";
+    } catch (err) {
+      console.error(err);
+      alert("Booking Failed");
+    }
+  };
 
   if (!event) {
     return (
@@ -23,41 +54,49 @@ export default function EventDetails() {
 
   return (
     <main className="min-h-screen bg-[#050816] text-white">
-      <div className="mx-auto max-w-6xl px-6 py-16">
-
-        <img
-          src={event.image}
-          className="h-[450px] w-full rounded-3xl object-cover"
-          alt={event.title}
-        />
-
-        <h1 className="mt-8 text-5xl font-black">
-          {event.title}
+      <div className="mx-auto max-w-3xl px-6 py-16">
+        <h1 className="mb-8 text-5xl font-black">
+          Book Tickets
         </h1>
 
-        <p className="mt-4 text-xl text-white/70">
-          📍 {event.location}
-        </p>
+        <div className="rounded-3xl bg-[#101629] p-8">
+          <h2 className="text-3xl font-bold">
+            {event.title}
+          </h2>
 
-        <p className="mt-2 text-xl text-white/70">
-          📅 {event.date}
-        </p>
+          <p className="mt-3 text-white/60">
+            📍 {event.location}
+          </p>
 
-        <p className="mt-6 text-cyan-400 text-3xl font-bold">
-          ₹{event.price}
-        </p>
+          <p className="mt-2 text-white/60">
+            📅 {event.date}
+          </p>
 
-        <p className="mt-8 text-lg leading-8 text-white/80">
-          {event.description}
-        </p>
+          <div className="mt-8">
+            <label className="mb-3 block">
+              Number of Tickets
+            </label>
 
-       <Link
-  href={`/booking/${event.id}`}
-  className="mt-10 inline-block rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 px-8 py-4 text-xl font-bold"
->
-  Book Ticket
-</Link>
+            <input
+              type="number"
+              min={1}
+              value={tickets}
+              onChange={(e) => setTickets(Number(e.target.value))}
+              className="w-full rounded-xl bg-[#050816] p-4"
+            />
+          </div>
 
+          <h3 className="mt-8 text-3xl font-bold text-cyan-400">
+            Total: ₹{tickets * Number(event.price)}
+          </h3>
+
+          <button
+            onClick={handleBooking}
+            className="mt-8 w-full rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 py-4 text-xl font-bold"
+          >
+            Confirm Booking
+          </button>
+        </div>
       </div>
     </main>
   );

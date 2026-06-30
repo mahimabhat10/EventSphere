@@ -1,27 +1,52 @@
-import { api } from "@/lib/api";
+import { request as api } from "@/lib/api";
 
 export const AuthService = {
-  login(email: string, password: string) {
-    return api("/users/login/", {
+  async login(email: string, password: string) {
+    const data = await api("/users/login/", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      data: {
+        email,
+        password,
+      },
     });
+
+    localStorage.setItem("access", data.access);
+    localStorage.setItem("refresh", data.refresh);
+
+    return data.user;
   },
 
-  register(data: any) {
-    return api("/users/register/", {
+  async register(payload: any) {
+    const result = await api("/users/register/", {
       method: "POST",
-      body: JSON.stringify(data),
+      data: payload,
     });
+
+    localStorage.setItem("access", result.access);
+    localStorage.setItem("refresh", result.refresh);
+
+    return result.user;
   },
 
-  logout() {
-    return api("/users/logout/", {
+  async logout() {
+    const refresh = localStorage.getItem("refresh");
+
+    await api("/users/logout/", {
       method: "POST",
+      data: {
+        refresh,
+      },
     });
+
+    localStorage.removeItem("access");
+    localStorage.removeItem("refresh");
   },
 
   profile() {
     return api("/users/profile/");
+  },
+
+  me() {
+    return api("/users/me/");
   },
 };

@@ -1,42 +1,53 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
 import { useAuth } from "@/contexts/AuthContext";
 
+const LoginSchema = z.object({
+  email: z.string().email("Enter a valid email"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+type LoginForm = z.infer<typeof LoginSchema>;
+
 export default function LoginPage() {
+  const router = useRouter();
   const { login } = useAuth();
 
-  const router = useRouter();
-
-  const [email, setEmail] = useState("");
-
-  const [password, setPassword] = useState("");
-
   const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  const [error, setError] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginForm>({
+    resolver: zodResolver(LoginSchema),
+  });
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-
-    setLoading(true);
-
-    setError("");
-
+  async function onSubmit(data: LoginForm) {
     try {
-      await login(email, password);
+      setLoading(true);
+      setServerError("");
+
+      await login(data.email, data.password);
 
       router.push("/profile");
-    } catch (err: any) {
-      setError("Invalid email or password");
+    } catch (err) {
+      setServerError("Invalid email or password");
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
   }
-
+console.log("LOGIN PAGE RENDERED");
   return (
-    <main className="min-h-screen bg-[#050816] flex items-center justify-center px-6">
+    <main className="min-h-screen flex items-center justify-center bg-[#050816] px-6">
 
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-white/5 p-10 backdrop-blur-xl">
 
@@ -49,37 +60,54 @@ export default function LoginPage() {
         </p>
 
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className="mt-10 space-y-5"
         >
 
-          <input
-            type="email"
-            placeholder="Email"
-            required
-            value={email}
-            onChange={(e)=>setEmail(e.target.value)}
-            className="w-full rounded-xl bg-[#101629] p-4 text-white outline-none border border-white/10"
-          />
+          <div>
 
-          <input
-            type="password"
-            placeholder="Password"
-            required
-            value={password}
-            onChange={(e)=>setPassword(e.target.value)}
-            className="w-full rounded-xl bg-[#101629] p-4 text-white outline-none border border-white/10"
-          />
+            <input
+              type="email"
+              placeholder="Email"
+              {...register("email")}
+              className="w-full rounded-xl border border-white/10 bg-[#101629] p-4 text-white outline-none"
+            />
 
-          {error && (
+            {errors.email && (
+              <p className="mt-2 text-sm text-red-400">
+                {errors.email.message}
+              </p>
+            )}
+
+          </div>
+
+          <div>
+
+            <input
+              type="password"
+              placeholder="Password"
+              {...register("password")}
+              className="w-full rounded-xl border border-white/10 bg-[#101629] p-4 text-white outline-none"
+            />
+
+            {errors.password && (
+              <p className="mt-2 text-sm text-red-400">
+                {errors.password.message}
+              </p>
+            )}
+
+          </div>
+
+          {serverError && (
             <p className="text-red-400">
-              {error}
+              {serverError}
             </p>
           )}
 
           <button
+            type="submit"
             disabled={loading}
-            className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 py-4 font-bold text-white"
+            className="w-full rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 py-4 font-bold text-white transition hover:scale-105 disabled:opacity-50"
           >
             {loading ? "Signing In..." : "Login"}
           </button>

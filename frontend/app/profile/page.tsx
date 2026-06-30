@@ -2,22 +2,42 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-
+import { toast } from "react-hot-toast";
 import { BookingService } from "@/services/bookings";
 import { UserService } from "@/services/users";
 
-export default function ProfilePage() {
+interface Booking {
+  id: number;
+  quantity: number;
+  total_price: number;
+  status: string;
+  event_details: {
+    title: string;
+  };
+}
 
- const [bookings, setBookings] = useState<any[]>([]);
-const [user, setUser] = useState<any>(null);
+interface User {
+  id: number;
+  first_name: string;
+  last_name: string;
+  email: string;
+  role: string;
+  avatar?: string;
+}
+
+export default function ProfilePage() {
+ const [bookings, setBookings] = useState<Booking[]>([]);
+const [user, setUser] = useState<User | null>(null);
 
 useEffect(() => {
-  BookingService.getBookings().then((data) => {
-    console.log("BOOKINGS:", data);
+  BookingService.getBookings().then((data: Booking[]) => {
     setBookings(data);
   });
-}, []);
 
+  UserService.profile().then((data: User) => {
+    setUser(data);
+  });
+}, []);
   return (
     <main className="min-h-screen bg-[#050816] py-12 px-6">
 
@@ -39,7 +59,7 @@ useEffect(() => {
             <div className="flex flex-col items-center">
 
               <img
-                src="https://i.pravatar.cc/300"
+                src={user?.avatar || "https://i.pravatar.cc/300"}
                 alt="Profile"
                 className="h-36 w-36 rounded-full border-4 border-cyan-400 object-cover"
               />
@@ -76,11 +96,18 @@ useEffect(() => {
                   First Name
                 </label>
 
-                <input
-                  defaultValue="John"
-                  className="w-full rounded-xl border border-white/10 bg-[#101629] p-4 text-white outline-none"
-                />
+        <input
+  value={user?.first_name || ""}
+  onChange={(e) => {
+  if (!user) return;
 
+  setUser({
+    ...user,
+    first_name: e.target.value,
+  });
+}}
+  className="w-full rounded-xl border border-white/10 bg-[#101629] p-4 text-white outline-none"
+/>
               </div>
 
               <div>
@@ -90,7 +117,15 @@ useEffect(() => {
                 </label>
 
                 <input
-                  defaultValue="Doe"
+            value={user?.last_name || ""}
+onChange={(e) => {
+  if (!user) return;
+
+  setUser({
+    ...user,
+    last_name: e.target.value,
+  });
+}}
                   className="w-full rounded-xl border border-white/10 bg-[#101629] p-4 text-white outline-none"
                 />
 
@@ -103,11 +138,11 @@ useEffect(() => {
               <label className="mb-2 block text-white">
                 Email
               </label>
-
-              <input
-                defaultValue="johndoe@gmail.com"
-                className="w-full rounded-xl border border-white/10 bg-[#101629] p-4 text-white outline-none"
-              />
+<input
+  value={user?.email || ""}
+  readOnly
+  className="w-full rounded-xl border border-white/10 bg-[#101629] p-4 text-white outline-none"
+/>
 
             </div>
 
@@ -138,10 +173,22 @@ useEffect(() => {
 
             </div>
 
-            <button className="mt-8 rounded-2xl bg-gradient-to-r from-cyan-500 to-purple-600 px-10 py-4 font-bold text-white transition hover:scale-105">
-              Save Changes
-            </button>
+           <button
+  onClick={async () => {
+   if (!user) return;
 
+await UserService.updateProfile({
+  first_name: user.first_name,
+  last_name: user.last_name,
+  avatar: user.avatar,
+});
+
+    toast.success("Profile Updated");
+  }}
+  className="mt-8 rounded-2xl bg-gradient-to-r from-cyan-500 to-purple-600 px-10 py-4 font-bold text-white transition hover:scale-105"
+>
+  Save Changes
+</button>
           </div>
 
         </div>
@@ -155,7 +202,7 @@ useEffect(() => {
 
   <div className="grid gap-6">
 
-    {bookings.map((booking: any) => (
+    {bookings.map((booking) =>(
 
       <div
         key={booking.id}
@@ -177,7 +224,15 @@ useEffect(() => {
         <p className="mt-2 text-green-400">
           {booking.status}
         </p>
-
+<button
+  onClick={async () => {
+    await BookingService.cancelBooking(booking.id);
+    setBookings(bookings.filter((b: Booking) => b.id !== booking.id));
+  }}
+  className="mt-4 rounded-xl bg-red-600 px-4 py-2 text-white hover:bg-red-700"
+>
+  Cancel Booking
+</button>
       </div>
 
     ))}

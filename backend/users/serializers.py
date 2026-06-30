@@ -1,11 +1,11 @@
-from rest_framework import serializers
 from django.contrib.auth import authenticate
+from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = User
         fields = [
@@ -20,6 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, min_length=6)
 
     class Meta:
         model = User
@@ -31,40 +32,63 @@ class RegisterSerializer(serializers.ModelSerializer):
             "role",
         ]
 
-        extra_kwargs = {
-            "password": {"write_only": True}
-        }
-
     def create(self, validated_data):
         password = validated_data.pop("password")
 
         user = User(**validated_data)
-
         user.set_password(password)
-
         user.save()
 
         return user
 
 
-class LoginSerializer(serializers.Serializer):
+class LoginSerializer(TokenObtainPairSerializer):
+    username_field = User.EMAIL_FIELD
 
-    email = serializers.EmailField()
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
 
-    password = serializers.CharField()
+        token["email"] = user.email
+        token["role"] = user.role
+        token["first_name"] = user.first_name
+        token["last_name"] = user.last_name
+
+        return token
 
     def validate(self, attrs):
+        credentials = {
+            "email": attrs.get("email"),
+            "password": attrs.get("password"),
+        }
 
-        user = authenticate(
-            email=attrs["email"],
-            password=attrs["password"],
-        )
+        user = authenticate(**credentials)
 
-        if not user:
-            raise serializers.ValidationError(
-                "Invalid credentials"
-            )
+        if user is None:
+            raise serializers.ValidationError("Invalid email or password.")
 
-        attrs["user"] = user
+        data = super().validate(attrs)
 
-        return attrs
+        data["user"] = UserSerializer(user).data
+
+        return data
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            "id",
+            "email",
+            "first_name",
+            "last_name",
+            "role",
+            "avatar",
+            "is_verified",
+        ]
+        read_only_fields = [
+            "id",
+            "email",
+            "role",
+            "is_verified",
+        ]

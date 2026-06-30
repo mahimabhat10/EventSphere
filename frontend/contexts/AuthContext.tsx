@@ -43,8 +43,8 @@ export function AuthProvider({
 
   async function refreshUser() {
     try {
-      const profile = await AuthService.profile();
-      setUser(profile);
+      // const profile = await AuthService.profile();
+      // setUser(profile);
     } catch {
       setUser(null);
     } finally {

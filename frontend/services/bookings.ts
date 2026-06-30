@@ -1,14 +1,20 @@
-import { api } from "@/lib/api";
+import { request as api } from "@/lib/api";
 
 export const BookingService = {
   createBooking(data: any) {
     return api("/bookings/", {
       method: "POST",
-      body: JSON.stringify(data),
+      data,
     });
   },
 
   getBookings() {
     return api("/bookings/");
+  },
+
+  cancelBooking(id: number) {
+    return api(`/bookings/${id}/`, {
+      method: "DELETE",
+    });
   },
 };
