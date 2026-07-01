@@ -10,6 +10,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      CLOUDINARY_CLOUD_NAME: test
+      CLOUDINARY_API_KEY: test
+      CLOUDINARY_API_SECRET: test
+      REDIS_URL: redis://localhost:6379/0
+      EMAIL_HOST_USER: test@example.com
+      EMAIL_HOST_PASSWORD: test
+
     steps:
       - uses: actions/checkout@v4
 
