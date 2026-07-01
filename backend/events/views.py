@@ -3,7 +3,7 @@ from rest_framework import generics, status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from django.core.cache import cache
 from bookings.models import Booking
 from .models import Event
 from .serializers import EventSerializer
@@ -33,9 +33,22 @@ class EventListCreateView(generics.ListCreateAPIView):
             queryset = queryset.filter(category__iexact=category)
 
         return queryset
+def get(self, request, *args, **kwargs):
+    cache_key = "all_events"
 
-    def perform_create(self, serializer):
-        serializer.save(organizer=self.request.user)
+    cached_events = cache.get(cache_key)
+
+    if cached_events:
+        return Response(cached_events)
+
+    response = super().get(request, *args, **kwargs)
+
+    cache.set(cache_key, response.data, timeout=300)
+
+    return response
+def perform_create(self, serializer):
+    serializer.save(organizer=self.request.user)
+    cache.delete("all_events")
 
 
 # ==========================
@@ -50,14 +63,15 @@ class EventDetailView(generics.RetrieveUpdateDestroyAPIView):
             return [IsAuthenticated()]
         return [AllowAny()]
 
-    def perform_update(self, serializer):
-        serializer.save()
+def perform_update(self, serializer):
+    serializer.save()
+    cache.delete("all_events")
+def perform_destroy(self, instance):
+    if instance.organizer != self.request.user:
+        raise PermissionError("You cannot delete this event.")
 
-    def perform_destroy(self, instance):
-        if instance.organizer != self.request.user:
-            raise PermissionError("You cannot delete this event.")
-        instance.delete()
-
+    instance.delete()
+    cache.delete("all_events")
 
 # ==========================
 # Featured Events
