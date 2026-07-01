@@ -22,15 +22,32 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <nav className="hidden gap-8 text-white md:flex">
+        <nav className="hidden items-center gap-8 text-white md:flex">
 
-          <Link href="/">Home</Link>
+          <Link href="/" className="hover:text-cyan-400 transition">
+            Home
+          </Link>
 
-          <Link href="/events">Events</Link>
+          <Link href="/events" className="hover:text-cyan-400 transition">
+            Events
+          </Link>
 
-          <Link href="/booking">Booking</Link>
+          <Link href="/my-bookings" className="hover:text-cyan-400 transition">
+            My Bookings
+          </Link>
 
-          <Link href="/profile">Profile</Link>
+          {user?.role === "organizer" && (
+            <Link
+              href="/dashboard"
+              className="hover:text-cyan-400 transition"
+            >
+              Dashboard
+            </Link>
+          )}
+
+          <Link href="/profile" className="hover:text-cyan-400 transition">
+            Profile
+          </Link>
 
         </nav>
 
@@ -40,7 +57,7 @@ export default function Navbar() {
 
             <Link
               href="/login"
-              className="rounded-xl border border-cyan-400 px-5 py-2 text-cyan-400"
+              className="rounded-xl border border-cyan-400 px-5 py-2 text-cyan-400 transition hover:bg-cyan-400 hover:text-black"
             >
               Login
             </Link>
@@ -59,12 +76,12 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
 
             <span className="text-white">
-              Hi, {user.first_name}
+              Hi, {user.first_name || user.email}
             </span>
 
             <button
               onClick={handleLogout}
-              className="rounded-xl bg-red-500 px-5 py-2 text-white"
+              className="rounded-xl bg-red-500 px-5 py-2 text-white transition hover:bg-red-600"
             >
               Logout
             </button>

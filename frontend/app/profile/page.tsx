@@ -28,7 +28,7 @@ interface User {
 export default function ProfilePage() {
  const [bookings, setBookings] = useState<Booking[]>([]);
 const [user, setUser] = useState<User | null>(null);
-
+const [avatarFile, setAvatarFile] = useState<File | null>(null);
 useEffect(() => {
   BookingService.getBookings().then((data: Booking[]) => {
     setBookings(data);
@@ -63,6 +63,16 @@ useEffect(() => {
                 alt="Profile"
                 className="h-36 w-36 rounded-full border-4 border-cyan-400 object-cover"
               />
+              <input
+  type="file"
+  accept="image/*"
+  onChange={(e) => {
+    if (e.target.files?.[0]) {
+      setAvatarFile(e.target.files[0]);
+    }
+  }}
+  className="mt-4 text-white"
+/>
 
               <h2 className="mt-6 text-3xl font-black text-white">
                {user?.first_name} {user?.last_name}
@@ -176,14 +186,25 @@ onChange={(e) => {
            <button
   onClick={async () => {
    if (!user) return;
+const formData = new FormData();
 
-await UserService.updateProfile({
-  first_name: user.first_name,
-  last_name: user.last_name,
-  avatar: user.avatar,
-});
+formData.append("first_name", user.first_name);
+formData.append("last_name", user.last_name);
 
-    toast.success("Profile Updated");
+if (avatarFile) {
+  formData.append("avatar", avatarFile);
+}
+
+try {
+  const updatedUser = await UserService.updateProfile(formData);
+
+  setUser(updatedUser);
+
+  toast.success("Profile Updated");
+} catch (err) {
+  console.error(err);
+  toast.error("Failed to update profile");
+}
   }}
   className="mt-8 rounded-2xl bg-gradient-to-r from-cyan-500 to-purple-600 px-10 py-4 font-bold text-white transition hover:scale-105"
 >

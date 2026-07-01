@@ -1,3 +1,4 @@
+import Link from "next/link";
 const events = [
   {
     id: 1,
@@ -21,8 +22,16 @@ export default function OrganizerDashboard() {
 
       <div className="mx-auto max-w-7xl">
 
-        <div className="mb-10 flex items-center justify-between">
+        <div className="mb-6">
+  <Link
+    href="/"
+    className="text-cyan-400 hover:text-cyan-300 hover:underline"
+  >
+    ← Back to Home
+  </Link>
+</div>
 
+<div className="mb-10 flex items-center justify-between">
           <div>
 
             <h1 className="text-5xl font-black text-white">

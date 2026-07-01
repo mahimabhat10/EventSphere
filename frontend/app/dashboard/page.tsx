@@ -1,34 +1,38 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { EventService } from "@/services/events";
 
+interface Event {
+  id: number;
+  title: string;
+  date: string;
+  location: string;
+  price: number;
+}
 export default function Dashboard() {
-  const events = [
-    {
-      id: 1,
-      title: "Sunburn Goa",
-      date: "15 Dec 2026",
-      location: "Goa",
-      price: 2499,
-    },
-    {
-      id: 2,
-      title: "Tech Summit",
-      date: "20 Jan 2027",
-      location: "Delhi",
-      price: 999,
-    },
-  ];
+const [dashboard, setDashboard] = useState<any>(null);
+const [events, setEvents] = useState<Event[]>([]);
 
+useEffect(() => {
+  EventService.getDashboard().then(setDashboard);
+  EventService.getMyEvents().then(setEvents);
+}, []);
   return (
     <main className="min-h-screen bg-[#050816] px-6 py-12">
-
       <div className="mx-auto max-w-7xl">
 
+        {/* Back Button */}
+        <Link
+          href="/"
+          className="mb-6 inline-block text-cyan-400 hover:text-cyan-300 hover:underline"
+        >
+          ← Back to Home
+        </Link>
+
         <div className="mb-10 flex items-center justify-between">
-
           <div>
-
             <h1 className="text-5xl font-black text-white">
               Organizer Dashboard
             </h1>
@@ -36,7 +40,6 @@ export default function Dashboard() {
             <p className="mt-3 text-white/60">
               Manage all your events
             </p>
-
           </div>
 
           <Link
@@ -45,9 +48,30 @@ export default function Dashboard() {
           >
             + Create Event
           </Link>
-
         </div>
+<div className="mb-8 grid gap-6 md:grid-cols-3">
+  <div className="rounded-xl bg-white/5 p-6">
+    <p className="text-white/60">Total Events</p>
+    <h2 className="text-3xl font-bold text-cyan-400">
+      {dashboard?.total_events ?? 0}
+    </h2>
+  </div>
 
+  <div className="rounded-xl bg-white/5 p-6">
+    <p className="text-white/60">Bookings</p>
+    <h2 className="text-3xl font-bold text-cyan-400">
+      {dashboard?.total_bookings ?? 0}
+    </h2>
+  </div>
+
+  <div className="rounded-xl bg-white/5 p-6">
+    <p className="text-white/60">Revenue</p>
+    <h2 className="text-3xl font-bold text-cyan-400">
+      ₹{dashboard?.total_revenue ?? 0}
+    </h2>
+  </div>
+</div>
+        {/* Rest of your code */}
         <div className="overflow-hidden rounded-3xl border border-white/10">
 
           <table className="w-full">
@@ -87,13 +111,25 @@ export default function Dashboard() {
 
                     <div className="flex gap-3">
 
-                      <button className="rounded-lg bg-cyan-500 px-4 py-2">
-                        Edit
-                      </button>
+                  
+<Link
+  href={`/events/edit/${event.id}`}
+  className="rounded-lg bg-cyan-500 px-4 py-2 text-white"
+>
+  Edit
+</Link>
+                      <button
+  onClick={async () => {
+    if (!confirm("Delete this event?")) return;
 
-                      <button className="rounded-lg bg-red-500 px-4 py-2">
-                        Delete
-                      </button>
+   await EventService.deleteEvent(event.id);
+
+setEvents(events.filter((e) => e.id !== event.id));
+  }}
+  className="rounded-lg bg-red-500 px-4 py-2"
+>
+  Delete
+</button>
 
                     </div>
 

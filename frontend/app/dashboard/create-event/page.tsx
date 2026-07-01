@@ -7,17 +7,17 @@ import { EventService } from "@/services/events";
 export default function CreateEventPage() {
   const router = useRouter();
 
-  const [form, setForm] = useState({
-    title: "",
-    description: "",
-    location: "",
-    date: "",
-    time: "",
-    image: "",
-    price: "",
-    capacity: "",
-  });
-
+ const [form, setForm] = useState({
+  title: "",
+  description: "",
+  location: "",
+  category: "Technology",
+  date: "",
+  time: "",
+  image: "",
+  price: "",
+  capacity: "",
+});
   const [loading, setLoading] = useState(false);
 
   function handleChange(
@@ -41,7 +41,8 @@ export default function CreateEventPage() {
         capacity: Number(form.capacity),
       });
 
-      router.push("/dashboard");
+     alert("Event created successfully!");
+router.push("/events");
     } catch (err) {
       alert("Failed to create event.");
     }

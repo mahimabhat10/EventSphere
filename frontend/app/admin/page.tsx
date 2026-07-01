@@ -69,10 +69,15 @@ export default function MyBookings() {
                     ₹{booking.price}
                   </p>
 
-                  <span className="mt-3 inline-block rounded-full bg-green-500/20 px-4 py-2 text-green-400">
-                    {booking.status}
-                  </span>
-
+                  <span
+  className={`mt-3 inline-block rounded-full px-4 py-2 ${
+    booking.status === "Confirmed"
+      ? "bg-green-500/20 text-green-400"
+      : "bg-yellow-500/20 text-yellow-400"
+  }`}
+>
+  {booking.status}
+</span>
                 </div>
 
               </div>

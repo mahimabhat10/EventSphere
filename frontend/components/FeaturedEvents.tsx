@@ -8,7 +8,7 @@ export default function FeaturedEvents() {
 
   if (loading) {
     return (
-      <section className="py-24 text-center text-white">
+<section className="py-16 text-center text-white">
         Loading...
       </section>
     );
@@ -17,7 +17,8 @@ export default function FeaturedEvents() {
   return (
     <section className="bg-[#050816] py-24">
       <div className="mx-auto max-w-7xl px-6">
-        <div className="flex items-center justify-between mb-12">
+
+        <div className="mb-12 flex items-center justify-between">
           <h2 className="text-5xl font-black text-white">
             Featured Events
           </h2>
@@ -31,11 +32,15 @@ export default function FeaturedEvents() {
         </div>
 
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+
           {events.map((event: any) => (
-            <div
+
+            <Link
               key={event.id}
-              className="overflow-hidden rounded-3xl border border-white/10 bg-[#101629] hover:scale-105 transition"
+              href={`/events/${event.id}`}
+              className="block overflow-hidden rounded-3xl border border-white/10 bg-[#101629] transition duration-300 hover:scale-105 hover:border-cyan-400"
             >
+
               <img
                 src={
                   event.image ||
@@ -46,6 +51,7 @@ export default function FeaturedEvents() {
               />
 
               <div className="p-6">
+
                 <h3 className="text-2xl font-bold text-white">
                   {event.title}
                 </h3>
@@ -58,16 +64,18 @@ export default function FeaturedEvents() {
                   ₹{event.price}
                 </p>
 
-                <Link
-                  href={`/events/${event.id}`}
-                  className="mt-6 inline-block rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 px-5 py-3 font-semibold text-white"
-                >
+                <div className="mt-6 inline-block rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 px-5 py-3 font-semibold text-white">
                   View Details
-                </Link>
+                </div>
+
               </div>
-            </div>
+
+            </Link>
+
           ))}
+
         </div>
+
       </div>
     </section>
   );

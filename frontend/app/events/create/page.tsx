@@ -46,7 +46,7 @@ export default function CreateEventPage() {
 
       alert("Event Created Successfully");
 
-      router.push("/organizer");
+      router.push("/dashboard");
     } catch (err) {
       console.error(err);
       alert("Unable to create event.");

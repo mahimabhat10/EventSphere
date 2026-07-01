@@ -32,7 +32,7 @@ useEffect(() => {
       location: data.location,
       category: data.category || "Technology",
       date: data.date,
-      time: data.time,
+      time: data.time.slice(0, 5),
       image: data.image,
       price: String(data.price),
       capacity: String(data.capacity),
@@ -72,7 +72,7 @@ useEffect(() => {
 
       alert("Event Updated Successfully");
 
-      router.push("/organizer");
+     router.push("/dashboard");
     } catch (err) {
       console.error(err);
       alert("Failed to update event.");
@@ -204,7 +204,7 @@ useEffect(() => {
 
             <button
               type="button"
-              onClick={() => router.push("/organizer")}
+              onClick={() => router.push("/dashboard")}
               className="rounded-xl border border-white/20 px-8 py-4 font-bold text-white hover:bg-white/10"
             >
               Cancel

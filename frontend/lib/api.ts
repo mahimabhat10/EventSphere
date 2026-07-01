@@ -4,17 +4,18 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
 const api = axios.create({
   baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("access");
 
   if (token) {
-    config.headers = config.headers || {};
     config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  // Let Axios set multipart/form-data automatically
+  if (!(config.data instanceof FormData)) {
+    config.headers["Content-Type"] = "application/json";
   }
 
   return config;
@@ -34,10 +35,6 @@ api.interceptors.response.use(
       try {
         const refresh = localStorage.getItem("refresh");
 
-        if (!refresh) {
-          throw new Error("No refresh token");
-        }
-
         const response = await axios.post(
           `${API_URL}/users/token/refresh/`,
           {
@@ -45,20 +42,20 @@ api.interceptors.response.use(
           }
         );
 
-        const newAccess = response.data.access;
+        localStorage.setItem("access", response.data.access);
 
-        localStorage.setItem("access", newAccess);
-
-        originalRequest.headers.Authorization = `Bearer ${newAccess}`;
+        originalRequest.headers.Authorization =
+          `Bearer ${response.data.access}`;
 
         return api(originalRequest);
-      } catch (err) {
+
+      } catch {
         localStorage.removeItem("access");
         localStorage.removeItem("refresh");
 
         window.location.href = "/login";
 
-        return Promise.reject(err);
+        return Promise.reject(error);
       }
     }
 
@@ -66,10 +63,10 @@ api.interceptors.response.use(
   }
 );
 
-export async function request(
-  endpoint: string,
-  options: any = {}
-) {
+export async function request(endpoint: string, options: any = {}) {
+  console.log("API URL:", API_URL);
+  console.log("REQUEST:", endpoint);
+
   const response = await api({
     url: endpoint,
     ...options,

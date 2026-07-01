@@ -9,11 +9,7 @@ export const UserService = {
     return api("/users/profile/");
   },
 
-  updateProfile(data: {
-    first_name?: string;
-    last_name?: string;
-    avatar?: string;
-  }) {
+  updateProfile(data: FormData) {
     return api("/users/profile/", {
       method: "PUT",
       data,

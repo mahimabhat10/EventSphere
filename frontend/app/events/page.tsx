@@ -1,22 +1,30 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { EventService } from "@/services/events";
 
 export default function EventsPage() {
+  const searchParams = useSearchParams();
+
   const [events, setEvents] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
 
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("");
+  const [category, setCategory] = useState(
+    searchParams.get("category") || ""
+  );
 
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadEvents();
     loadCategories();
   }, []);
+
+  useEffect(() => {
+    loadEvents();
+  }, [search, category]);
 
   async function loadEvents() {
     try {
@@ -38,10 +46,6 @@ export default function EventsPage() {
     setCategories(data);
   }
 
-  useEffect(() => {
-    loadEvents();
-  }, [search, category]);
-
   return (
     <main className="min-h-screen bg-[#050816] py-10 px-6">
 
@@ -55,29 +59,20 @@ export default function EventsPage() {
 
           <input
             value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Search events..."
             className="rounded-xl bg-[#101629] p-4 text-white outline-none"
           />
 
           <select
             value={category}
-            onChange={(e) =>
-              setCategory(e.target.value)
-            }
+            onChange={(e) => setCategory(e.target.value)}
             className="rounded-xl bg-[#101629] p-4 text-white outline-none"
           >
-            <option value="">
-              All Categories
-            </option>
+            <option value="">All Categories</option>
 
             {categories.map((cat) => (
-              <option
-                key={cat}
-                value={cat}
-              >
+              <option key={cat} value={cat}>
                 {cat}
               </option>
             ))}
@@ -88,8 +83,14 @@ export default function EventsPage() {
 
         {loading ? (
 
-          <div className="text-center text-white">
+          <div className="text-center text-white text-xl">
             Loading...
+          </div>
+
+        ) : events.length === 0 ? (
+
+          <div className="text-center text-white text-xl">
+            No events found.
           </div>
 
         ) : (
@@ -98,9 +99,10 @@ export default function EventsPage() {
 
             {events.map((event) => (
 
-              <div
+              <Link
                 key={event.id}
-                className="overflow-hidden rounded-3xl border border-white/10 bg-white/5"
+                href={`/events/${event.id}`}
+                className="overflow-hidden rounded-3xl border border-white/10 bg-white/5 transition hover:scale-105 hover:border-cyan-400"
               >
 
                 <img
@@ -128,20 +130,16 @@ export default function EventsPage() {
                   </p>
 
                   <p className="mt-2 text-white/60">
-                    Seats Left:{" "}
-                    {event.available_seats}
+                    Seats Left: {event.available_seats}
                   </p>
 
-                  <Link
-                    href={`/events/${event.id}`}
-                    className="mt-6 inline-block rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 px-6 py-3 font-bold text-white"
-                  >
+                  <div className="mt-6 inline-block rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 px-6 py-3 font-bold text-white">
                     View Details
-                  </Link>
+                  </div>
 
                 </div>
 
-              </div>
+              </Link>
 
             ))}
 

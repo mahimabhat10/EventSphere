@@ -1,9 +1,11 @@
 "use client";
-
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, CalendarDays, MapPin } from "lucide-react";
 
+
 export default function Hero() {
+  
   return (
     <section className="relative flex min-h-screen items-center overflow-hidden bg-[#050816]">
 
@@ -41,17 +43,22 @@ export default function Hero() {
 
           <div className="mt-10 flex flex-wrap gap-5">
 
-            <button className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 px-8 py-4 font-semibold text-white shadow-2xl">
-              Explore Events
-              <ArrowRight size={20} />
-            </button>
+  <Link
+    href="/events"
+    className="rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 px-8 py-4 font-bold text-white transition hover:scale-105 flex items-center gap-2"
+  >
+    Explore Events
+    <ArrowRight size={20} />
+  </Link>
 
-            <button className="rounded-xl border border-white/20 px-8 py-4 text-white hover:bg-white/10">
-              Become Organizer
-            </button>
+  <Link
+    href="/register"
+    className="rounded-xl border border-white/20 px-8 py-4 text-white hover:bg-white/10"
+  >
+    Become Organizer
+  </Link>
 
-          </div>
-
+</div>
           <div className="mt-14 flex flex-wrap gap-8 text-white/70">
 
             <div className="flex items-center gap-3">
@@ -75,34 +82,32 @@ export default function Hero() {
           className="mt-20 flex-1 lg:mt-0"
         >
 
-          <div className="rounded-[35px] border border-white/10 bg-white/5 p-8 backdrop-blur-3xl shadow-[0_0_80px_rgba(99,102,241,.25)]">
+      <Link
+  href="/events/1"
+  className="block rounded-[35px] border border-white/10 bg-white/5 p-8 backdrop-blur-3xl shadow-[0_0_80px_rgba(99,102,241,.25)] transition duration-300 hover:scale-[1.02] hover:border-cyan-400/40"
+>
+  <img
+    src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900"
+    alt="event"
+    className="rounded-3xl"
+  />
 
-            <img
-              src="https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=900"
-              alt="event"
-              className="rounded-3xl"
-            />
+  <div className="mt-8 flex justify-between">
+    <div>
+      <h3 className="text-2xl font-bold text-white">
+        Sunburn Goa
+      </h3>
 
-            <div className="mt-8 flex justify-between">
+      <p className="mt-2 text-white/60">
+        Biggest EDM Festival
+      </p>
+    </div>
 
-              <div>
-                <h3 className="text-2xl font-bold text-white">
-                  Sunburn Goa
-                </h3>
-
-                <p className="mt-2 text-white/60">
-                  Biggest EDM Festival
-                </p>
-              </div>
-
-              <div className="rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 px-5 py-3 font-bold text-white">
-                ₹2499
-              </div>
-
-            </div>
-
-          </div>
-
+    <div className="rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 px-5 py-3 font-bold text-white">
+      ₹2499
+    </div>
+  </div>
+</Link>
         </motion.div>
 
       </div>

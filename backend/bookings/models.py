@@ -34,9 +34,7 @@ class Booking(models.Model):
         default="Pending",
     )
 
-    booked_at = models.DateTimeField(
-        auto_now_add=True,
-    )
+    booked_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.email} - {self.event.title}"
